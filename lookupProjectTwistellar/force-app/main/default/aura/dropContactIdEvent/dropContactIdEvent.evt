@@ -1,0 +1,4 @@
+<aura:event type="COMPONENT">
+    <aura:attribute name="record" type="sObject"/>
+    <aura:attribute name="contactid" type="String"/>
+</aura:event>

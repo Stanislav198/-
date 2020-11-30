@@ -1,0 +1,141 @@
+<aura:component controller="RelContController"
+    implements="force:appHostable,flexipage:availableForAllPageTypes,flexipage:availableForRecordHome,force:hasRecordId"
+    access="global">
+
+    <aura:attribute name="recordId" type="Id" />
+    <aura:attribute name="isOpen" type="boolean" default="false" />
+    <aura:attribute name="ContactList" type="contact[]" />
+    <aura:attribute name="myAcctId" type="String" />
+    <aura:attribute name="selectedLookUpRecord" type="sObject" default="{}" />
+
+    <aura:handler name="init" value="{!this}" action="{!c.myAction}" />
+    <aura:handler name="appEvent" event="c:dropContactIdEvent" action="{!c.handleEvent}" />
+
+    <lightning:card variant="Narrow" class="slds-m-bottom_none" iconName="standard:contact"
+        title="Related Contacts Table">
+        <div class="slds-m-around_xxx-small slds-align_absolute-center">
+            <!--Edit Mode Button-->
+            <lightning:button variant="brand" label="Edit" title="Edit" onclick="{! c.openModel }" />
+            <aura:if isTrue="{!v.isOpen}">
+                <!--Modal Edit Mode Start-->
+                <section role="dialog" tabindex="-1" id="mod" aria-labelledby="modal-heading-01" aria-modal="true"
+                    aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open slds-modal_large">
+                    <div class="slds-modal__container" id="cont">
+                        <!--Modal Edit Mode Header Start-->
+                        <header class="slds-modal__header">
+                            <lightning:buttonIcon iconName="utility:close" onclick="{! c.closeModel }"
+                                alternativeText="close" variant="bare-inverse" class="slds-modal__close" />
+                            <div class="slds-text-align_center slds-text-heading_medium">Edit Mode</div>
+                        </header>
+
+                        <!--Modal Edit Mode Body Start-->
+                        <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                            <!--button for save and cancel Record after Inline Edit-->
+                            <lightning:buttonGroup class="slds-m-around_medium">
+                                <lightning:button label="Cancel" onclick="{!c.closeModel}" />
+                                <lightning:button label="Save" onclick="{!c.save}" variant="success" />
+                            </lightning:buttonGroup>
+                            <!--Data Table-->
+                            <table class="slds-table slds-table_bordered slds-table_cell-buffer">
+                                <thead>
+                                    <tr class="slds-text-title--caps">
+                                        <th scope="col">
+                                            <div class="slds-truncate" title="FirstName">FirstName</div>
+                                        </th>
+                                        <th scope="col">
+                                            <div class="slds-truncate" title="LastName">LastName</div>
+                                        </th>
+                                        <th scope="col">
+                                            <div class="slds-truncate" title="Title">Title</div>
+                                        </th>
+                                        <th scope="col">
+                                            <div class="slds-truncate" title="Email">Email</div>
+                                        </th>
+                                        <th scope="col">
+                                            <div class="slds-truncate" title="Account Name">Account Name</div>
+                                        </th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <aura:iteration items="{!v.ContactList}" var="con">
+                                        <!--Table Row Start-->
+                                        <tr class="slds-hint-parent">
+                                            <td>
+                                                <lightning:input value="{!con.FirstName}" />
+                                            </td>
+                                            <td>
+                                                <lightning:input value="{!con.LastName}" />
+                                            </td>
+
+                                            <td>
+                                                <lightning:input value="{!con.Title}" />
+                                            </td>
+
+                                            <td>
+                                                <lightning:input value="{!con.Email}" />
+                                            </td>
+
+                                            <td>
+                                                <c:LookupReusable_Parent objectAPIName="account"
+                                                    IconName="standard:account"
+                                                    selectedRecord="{!v.selectedLookUpRecord}" label="Accounts"
+                                                    contactid="{!con.Id}" />
+                                            </td>
+                                        </tr>
+                                    </aura:iteration>
+                                </tbody>
+                            </table>
+                            <br /><br /><br /><br />
+                        </div>
+                    </div>
+                </section>
+                <div class="slds-backdrop slds-backdrop_open"></div>
+            </aura:if>
+        </div>
+        <!--Non-Editable Datatable-->
+        <aura:if isTrue="{!not(empty(v.ContactList))}">
+            <table class="slds-table slds-table_cell-buffer slds-table_bordered">
+                <thead>
+                    <tr class="slds-line-height_reset">
+                        <th class="slds-text-title_caps">
+                            <div class="slds-truncate" title="First Name">FirstName</div>
+                        </th>
+                        <th class="slds-text-title_caps">
+                            <div class="slds-truncate" title="Last Name">LastName</div>
+                        </th>
+                        <th class="slds-text-title_caps">
+                            <div class="slds-truncate" title="Title">Title</div>
+                        </th>
+                        <th class="slds-text-title_caps">
+                            <div class="slds-truncate" title="Email">Email</div>
+                        </th>
+                        <th class="slds-text-title_caps">
+                            <div class="slds-truncate" title="AccountName">Account Name</div>
+                        </th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <aura:iteration items="{!v.ContactList}" var="con">
+                        <tr class="slds-hint-parent">
+                            <td>
+                                <div class="slds-truncate" title="File Name">{!con.FirstName}</div>
+                            </td>
+                            <td>
+                                <div class="slds-truncate" title="File Name">{!con.LastName}</div>
+                            </td>
+                            <td>
+                                <div class="slds-truncate" title="Title">{!con.Title}</div>
+                            </td>
+                            <td>
+                                <div class="slds-truncate" title="Email">{!con.Email}</div>
+                            </td>
+                            <td>
+                                <div class="slds-truncate" title="Account Name">{!con.Account.Name}</div>
+                            </td>
+                        </tr>
+                    </aura:iteration>
+                </tbody>
+            </table>
+        </aura:if>
+    </lightning:card>
+</aura:component>

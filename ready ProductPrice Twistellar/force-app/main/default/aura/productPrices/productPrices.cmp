@@ -1,0 +1,202 @@
+<aura:component
+    implements="force:appHostable,flexipage:availableForAllPageTypes,force:hasRecordId,flexipage:availableForRecordHome,force:hasRecordId,forceCommunity:availableForAllPageTypes,force:lightningQuickAction"
+    access="global" controller="samplePagerCtrl">
+
+    <aura:attribute name="isOpenProduct" type="boolean" default="false" />
+    <aura:attribute name="isOpenPriceBook" type="boolean" default="false" />
+    <aura:attribute name="isShowButton" type="boolean" default="false" />
+    <aura:attribute name="isShowSaveAllButton" type="boolean" default="false" />
+    <aura:attribute name="fieldsProduct" type="String[]" default="['Name','Description','StockKeepingUnit']" />
+    <aura:attribute name="fieldsPriceBook" type="String[]" default="['Name']" />
+    <aura:attribute name="wrapperList" type="List" />
+    <aura:attribute name="SearchKey" type="String" />
+    <aura:attribute name="page" type="integer" description="using for store page Number" />
+    <aura:attribute name="pages" type="integer" description="using for store All Pages page Number" />
+    <aura:attribute name="total" type="integer" description="total records count store " />
+
+    <aura:handler name="change" value="{!v.filter}" action="{!c.doFilter}" />
+    <aura:handler name="init" value="{!this}" action="{!c.doInit}" />
+    <!-- search field -->
+    <div class="slds-float_left">
+        <div class="slds-form-element__control">
+            <input type="text" value="{!v.SearchKey}" onkeyup="{!c.myFunction}" id="myInput" class="slds-input"
+                placeholder="Search by ProductName" />
+        </div>
+    </div>
+    <!-- save all button + create product + create pricebook -->
+    <div class="slds-float_right">
+        <aura:if isTrue="{!v.isShowSaveAllButton}">
+            <lightning:button class="slds-button slds-button_success " label="Save All" title="Save All"
+                onclick="{! c.saveAll }" />
+        </aura:if>
+        <div class="slds-button-group" role="group">
+            <lightning:button class="slds-button slds-button_outline-brand" label="Create Product"
+                title="Create Product" onclick="{! c.openModelProduct }" />
+            <lightning:button class="slds-button slds-button_brand" label="Create PriceBook" title="Create PriceBook"
+                onclick="{! c.openModelPriceBook }" />
+        </div>
+        <!-- create product pop-up box -->
+        <aura:if isTrue="{!v.isOpenProduct}">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+                aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <lightning:buttonIcon iconName="utility:close" onclick="{! c.closeModelProduct }"
+                            alternativeText="close" variant="bare-inverse" class="slds-modal__close" />
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Create Product
+                        </h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <!-- form for create product -->
+                        <lightning:recordForm objectApiName="Product2" fields="{!v.fieldsProduct}"
+                            onsuccess="{!c.closeModelProduct}" oncancel="{!c.closeModelProduct}" />
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </aura:if>
+        <!-- create pricebook pop-up box -->
+        <aura:if isTrue="{!v.isOpenPriceBook}">
+            <section role="dialog" tabindex="-1" aria-labelledby="modal-heading-01" aria-modal="true"
+                aria-describedby="modal-content-id-1" class="slds-modal slds-fade-in-open">
+                <div class="slds-modal__container">
+                    <header class="slds-modal__header">
+                        <lightning:buttonIcon iconName="utility:close" onclick="{! c.closeModelPriceBook }"
+                            alternativeText="close" variant="bare-inverse" class="slds-modal__close" />
+                        <h2 id="modal-heading-01" class="slds-text-heading_medium slds-hyphenate">Create PriceBook
+                        </h2>
+                    </header>
+                    <div class="slds-modal__content slds-p-around_medium" id="modal-content-id-1">
+                        <!-- form for create pricebook -->
+                        <lightning:recordForm objectApiName="Pricebook2" fields="{!v.fieldsPriceBook}"
+                            onsuccess="{!c.closeModelPriceBook}" oncancel="{!c.closeModelPriceBook}" />
+                    </div>
+                </div>
+            </section>
+            <div class="slds-backdrop slds-backdrop_open"></div>
+        </aura:if>
+    </div>
+    <!-- main table -->
+    <table class="slds-table slds-table_cell-buffer slds-table_bordered" id="myTable">
+        <thead>
+            <tr>
+                <!-- columns -->
+                <th>
+                    Product Name
+                </th>
+                <th>
+                    <a href="https://staspshenichny-dev-ed.lightning.force.com/lightning/r/Pricebook2/01s2w000007yaqOAAQ/view"
+                        target="_blank">StandardPriceBook</a>
+                </th>
+                <th>
+                    <a href="https://staspshenichny-dev-ed.lightning.force.com/lightning/r/Pricebook2/01s2w000008YkdtAAC/view"
+                        target="_blank">FirstPriceBook</a>
+                </th>
+                <th>
+                    <a href="https://staspshenichny-dev-ed.lightning.force.com/lightning/r/Pricebook2/01s2w000008YkdyAAC/view"
+                        target="_blank">SecondPriceBook</a>
+                </th>
+                <th>
+                    Actions
+                </th>
+            </tr>
+        </thead>
+        <tbody>
+            <aura:iteration items="{!v.wrapperList}" var="wrap">
+                <tr>
+                    <td>
+                        <!-- product name -->
+                        <a href="{!'/one/one.app?#/sObject/'+ wrap.product2s.Id + '/view'}"
+                            target="_blank">{!wrap.product2s.Name}</a>
+                        <aura:if isTrue="{!wrap.isOpenProductName}">
+                            <lightning:input aura:id="myField" id="input" type="text"
+                                value="{!wrap.product2s.Name}"/>
+                        </aura:if>
+                    </td>
+                    <td>
+                        <!-- standard pricebook -->
+                        {!wrap.productPrice3.UnitPrice}
+                        <aura:if isTrue="{!empty(wrap.productPrice3.UnitPrice)}">
+                            <button class="slds-button slds-button_brand" type="button" onclick="{!c.addStandard}"
+                                id="{!wrap.product2s.Id}">Add
+                                Price</button>
+                        </aura:if>
+                    </td>
+                    <td>
+                        <!-- first pricebook -->
+                        {!wrap.productPrice1.UnitPrice}
+                        <aura:if isTrue="{!empty(wrap.productPrice1.UnitPrice)}">
+                            <aura:if isTrue="{!!empty(wrap.productPrice3.UnitPrice)}">
+                                <aura:if isTrue="{!!wrap.isOpenFirst}">
+                                    <button class="slds-button slds-button_brand" type="button"
+                                        id="{!wrap.product2s.Id}" onclick="{!c.openInputFirst}">Add Price</button>
+                                </aura:if>
+                            </aura:if>
+                        </aura:if>
+                        <aura:if isTrue="{!wrap.isOpenFirst}">
+                            <lightning:input aura:id="myField" id="input" type="number"
+                                value="{!wrap.productPrice1.UnitPrice}" min="0.01" step=".01" />
+                            <aura:if isTrue="{!!v.isShowButton}">
+                                <center><button class="slds-button slds-button_success" type="button"
+                                        onclick="{!c.addFirstPriceBook}" id="{!wrap.product2s.Id}">Add
+                                    </button></center>
+                            </aura:if>
+                        </aura:if>
+                    </td>
+                    <td>
+                        <!-- second pricebook -->
+                        {!wrap.productPrice2.UnitPrice}
+                        <aura:if isTrue="{!empty(wrap.productPrice2.UnitPrice)}">
+                            <aura:if isTrue="{!!empty(wrap.productPrice3.UnitPrice)}">
+                                <aura:if isTrue="{!!wrap.isOpenSecond}">
+                                    <button class="slds-button slds-button_brand" type="button"
+                                        id="{!wrap.product2s.Id}" onclick="{!c.openInputSecond}">Add Price</button>
+                                </aura:if>
+                            </aura:if>
+                        </aura:if>
+                        <aura:if isTrue="{!wrap.isOpenSecond}">
+                            <lightning:input aura:id="myField" id="input" type="number"
+                                value="{!wrap.productPrice2.UnitPrice}" min="0.01" step=".01" />
+                            <aura:if isTrue="{!!v.isShowButton}">
+                                <center>
+                                    <button class="slds-button slds-button_success" type="button"
+                                        onclick="{!c.addSecondPriceBook}" id="{!wrap.product2s.Id}">Add
+                                    </button></center>
+                            </aura:if>
+                        </aura:if>
+                    </td>
+                    <td>
+                        <!-- actions -->
+                        <aura:if isTrue="{!!wrap.isEditRow}">
+                            <button class="slds-button slds-button_brand" type="button" onclick="{!c.editRecord}"
+                                id="{!wrap.product2s.Id}">Edit</button>
+                            <button class="slds-button slds-button_destructive" type="button"
+                                onclick="{!c.deleteRecord}" id="{!wrap.product2s.Id}">Delete</button>
+                            <aura:set attribute="else">
+                                <button class="slds-button slds-button_success" type="button" onclick="{!c.saveEditRow}"
+                                    id="{!wrap.product2s.Id}">Save</button>
+                                <button class="slds-button slds-button_text-destructive" type="button"
+                                    onclick="{!c.cancelEditRow}" id="{!wrap.product2s.Id}">Cancel</button>
+                            </aura:set>
+                        </aura:if>
+                    </td>
+                </tr>
+            </aura:iteration>
+        </tbody>
+    </table>
+    <br />
+    <!-- pagination -->
+    <div class="slds-align_absolute-center">
+        <lightning:button disabled="{!v.page == 1}" variant="brand" label="Previous Page" onclick="{! c.navigate }" />
+        <lightning:button disabled="{!v.page == v.pages}" aura:id="previousPage" variant="brand" label="Next Page"
+            onclick="{! c.navigate }" />
+    </div>
+    <p class="slds-page-header__title slds-truncate">{!v.total} Products • page {!v.page} / {!v.pages}</p>
+    <div class="slds-float_left">
+        <ui:inputSelect aura:id="recordSize" label="Records Per Page: " change="{!c.onSelectChange}">
+            <ui:inputSelectOption text="10" label="10" value="true" />
+            <ui:inputSelectOption text="15" label="15" />
+            <ui:inputSelectOption text="20" label="20" />
+        </ui:inputSelect>
+    </div>
+</aura:component>

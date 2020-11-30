@@ -1,0 +1,21 @@
+<aura:component implements="flexipage:availableForRecordHome,force:hasRecordId" controller="MyOLIController"
+    access="global">
+
+    <aura:attribute name="productList" type="List" />
+
+    <aura:handler name="init" action="{!c.fetchProducts}" value="{!this}" />
+
+    <aura:iteration items="{!v.productList}" var="product">
+        <div class="slds-text-title">Product Name:</div>
+        <p>{!product.Name}</p><br />
+        <div class="slds-text-title">Product Description:</div>
+        <div class="slds-grid" style="width:130px">
+            <div class="slds-grid slds-has-flexi-truncate">
+                <p class="slds-truncate">{!product.Description}</p>
+            </div>
+        </div>
+        <br />
+        <div class="slds-text-title">Product SKU:</div>
+        <p>{!product.StockKeepingUnit}</p>
+    </aura:iteration>
+</aura:component>
